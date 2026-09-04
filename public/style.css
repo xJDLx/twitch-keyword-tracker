@@ -1,0 +1,109 @@
+:root {
+  color-scheme: light dark;
+  --twitch-purple: #9146ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 2rem;
+  background: #f5f5f7;
+  color: #1f1f23;
+}
+
+main {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: var(--twitch-purple);
+}
+
+.subtitle {
+  color: #555;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+input {
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+button {
+  padding: 0.5rem 1.25rem;
+  font-size: 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  background: var(--twitch-purple);
+  color: white;
+}
+
+button:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.status {
+  color: #2b7a2b;
+  font-weight: 600;
+}
+
+.error {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  border-bottom: 1px solid #eee;
+}
+
+th {
+  background: var(--twitch-purple);
+  color: white;
+}
+
+.disclaimer {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: #777;
+}
