@@ -40,7 +40,8 @@ app.post('/api/track', async (req, res) => {
   try {
     await tracker.start(sessionId, channel, trimmedKeyword);
   } catch (err) {
-    return res.status(502).json({ error: err.message });
+    const status = /too many active tracking sessions/i.test(err.message) ? 429 : 502;
+    return res.status(status).json({ error: err.message });
   }
 
   return res.status(201).json({ sessionId, channel, keyword: trimmedKeyword });

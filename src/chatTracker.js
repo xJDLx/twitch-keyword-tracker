@@ -14,7 +14,7 @@ const tmi = require('tmi.js');
 function detectRole(tags = {}) {
   const badges = tags.badges || {};
 
-  if (tags.badges && Object.prototype.hasOwnProperty.call(badges, 'broadcaster')) {
+  if (Object.prototype.hasOwnProperty.call(badges, 'broadcaster')) {
     return 'broadcaster';
   }
   if (tags.mod || Object.prototype.hasOwnProperty.call(badges, 'moderator')) {
@@ -42,15 +42,34 @@ function messageMatchesKeyword(message, keyword) {
   return message.toLowerCase().includes(keyword.toLowerCase());
 }
 
+const MAX_CONCURRENT_SESSIONS = 20;
+const SESSION_MAX_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours
+
 /**
  * Manages Twitch chat tracking sessions. Each session connects anonymously
  * (read-only, no login required) to a single channel and watches for a
  * keyword, emitting a 'match' event with match details whenever found.
  */
 class ChatTrackerManager extends EventEmitter {
-  constructor() {
+  /**
+   * @param {object} [options]
+   * @param {(channel: string) => tmi.Client} [options.createClient] Factory
+   *   for the underlying chat client, primarily for testing.
+   * @param {number} [options.maxSessionDurationMs] Auto-expiry duration for
+   *   a session, primarily for testing.
+   */
+  constructor(options = {}) {
     super();
     this.sessions = new Map();
+    this.maxSessionDurationMs = options.maxSessionDurationMs || SESSION_MAX_DURATION_MS;
+    this.createClient =
+      options.createClient ||
+      ((channel) =>
+        new tmi.Client({
+          options: { skipMembership: true },
+          connection: { reconnect: true, secure: true },
+          channels: [channel],
+        }));
   }
 
   /**
@@ -65,11 +84,11 @@ class ChatTrackerManager extends EventEmitter {
       throw new Error('Session is already tracking.');
     }
 
-    const client = new tmi.Client({
-      options: { skipMembership: true },
-      connection: { reconnect: true, secure: true },
-      channels: [channel],
-    });
+    if (this.sessions.size >= MAX_CONCURRENT_SESSIONS) {
+      throw new Error('Too many active tracking sessions. Please try again later.');
+    }
+
+    const client = this.createClient(channel);
 
     const onMessage = (chan, tags, message, self) => {
       if (self) return;
@@ -102,7 +121,15 @@ class ChatTrackerManager extends EventEmitter {
       throw new Error(`Failed to connect to Twitch chat: ${connectError.message || connectError}`);
     }
 
-    this.sessions.set(sessionId, { client, channel, keyword });
+    // Auto-expire long-running sessions so an abandoned tracker (client
+    // started tracking but never stopped) doesn't hold a chat connection
+    // open forever.
+    const expiryTimer = setTimeout(() => {
+      this.stop(sessionId).catch(() => {});
+    }, this.maxSessionDurationMs);
+    expiryTimer.unref();
+
+    this.sessions.set(sessionId, { client, channel, keyword, expiryTimer });
   }
 
   /**
@@ -116,6 +143,7 @@ class ChatTrackerManager extends EventEmitter {
       throw new Error('Session not found.');
     }
     this.sessions.delete(sessionId);
+    clearTimeout(session.expiryTimer);
     try {
       await session.client.disconnect();
     } catch (err) {
