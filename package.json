@@ -1,0 +1,26 @@
+{
+  "name": "twitch-keyword-tracker",
+  "version": "1.0.0",
+  "description": "Web app that tracks Twitch chat keyword matches by channel URL and displays usernames and roles.",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "DB_PATH=:memory: node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://localhost:26831/xJDLx/twitch-keyword-tracker"
+  },
+  "keywords": [
+    "twitch",
+    "chat",
+    "keyword-tracker"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "better-sqlite3": "^13.0.3",
+    "express": "^5.2.1",
+    "tmi.js": "^1.8.5"
+  }
+}

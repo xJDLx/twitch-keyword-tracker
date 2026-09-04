@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Twitch Keyword Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <h1>Twitch Keyword Tracker</h1>
+    <p class="subtitle">
+      Paste a Twitch channel URL and a keyword to track. No login required
+      &mdash; this only reads public chat.
+    </p>
+
+    <form id="track-form">
+      <label for="channelUrl">Twitch channel URL</label>
+      <input
+        type="text"
+        id="channelUrl"
+        name="channelUrl"
+        placeholder="https://www.twitch.tv/somechannel"
+        required
+      />
+
+      <label for="keyword">Keyword to track</label>
+      <input type="text" id="keyword" name="keyword" placeholder="pizza" required />
+
+      <div class="buttons">
+        <button type="submit" id="start-btn">Start tracking</button>
+        <button type="button" id="stop-btn" disabled>Stop tracking</button>
+      </div>
+    </form>
+
+    <p id="status" class="status"></p>
+    <p id="error" class="error"></p>
+
+    <table id="results">
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Channel</th>
+          <th>Role</th>
+          <th>Message</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+
+    <p class="disclaimer">
+      Note: subscriber status is best-effort. Without an authenticated Twitch
+      login, the app cannot always guarantee correct subscriber detection.
+      Broadcaster, moderator, and VIP roles are generally reliable from chat
+      badges.
+    </p>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
